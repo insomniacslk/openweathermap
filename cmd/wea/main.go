@@ -52,31 +52,37 @@ func main() {
 		tempUnit = "F"
 		speedUnit = "mph"
 	}
+	tz := time.FixedZone(resp.Timezone, resp.TimezoneOffset)
 
 	// print location information
 	fmt.Fprintf(os.Stdout, "Latitude                    : %f\n", resp.Lat)
 	fmt.Fprintf(os.Stdout, "Longitude                   : %f\n", resp.Lon)
 	fmt.Fprintf(os.Stdout, "Time zone                   : %s\n", resp.Timezone)
 	fmt.Fprintf(os.Stdout, "Time zone offset            : %ds\n", resp.TimezoneOffset)
+	fmt.Fprintf(os.Stdout, "\n")
 	// print current weather
 	if resp.Current != nil {
 		fmt.Fprintf(os.Stdout, "Current\n")
 		fmt.Fprintf(os.Stdout, "  Temperature               : %.02f%s\n", resp.Current.Temp, tempUnit)
 		fmt.Fprintf(os.Stdout, "  Feels like                : %.02f%s\n", resp.Current.FeelsLike, tempUnit)
-		printCommonWeatherSummary(os.Stdout, &resp.Current.CommonWeatherSummary, tempUnit, speedUnit)
+		printCommonWeatherSummary(os.Stdout, &resp.Current.CommonWeatherSummary, tempUnit, speedUnit, tz)
+		fmt.Fprintf(os.Stdout, "\n")
 	}
 	// print minutely weather
 	fmt.Fprintf(os.Stdout, "Minutely\n")
-	for _, m := range resp.Minutely {
-		fmt.Fprintf(os.Stdout, "  Timestamp                 : %.02f%s\n", time.Unix(m.Dt, 0))
-		fmt.Fprintf(os.Stdout, "  Precipitation             : %.02f%s\n", m.Precipitation)
+	for _, minutely := range resp.Minutely {
+		fmt.Fprintf(os.Stdout, "  Temperature               : %.02f%s\n", minutely.Temp, tempUnit)
+		fmt.Fprintf(os.Stdout, "  Feels like                : %.02f%s\n", minutely.FeelsLike, tempUnit)
+		printCommonWeatherSummary(os.Stdout, &minutely.CommonWeatherSummary, tempUnit, speedUnit, tz)
+		fmt.Fprintf(os.Stdout, "\n")
 	}
 	// print hourly weather
 	fmt.Fprintf(os.Stdout, "Hourly\n")
 	for _, hourly := range resp.Hourly {
 		fmt.Fprintf(os.Stdout, "  Temperature               : %.02f%s\n", hourly.Temp, tempUnit)
 		fmt.Fprintf(os.Stdout, "  Feels like                : %.02f%s\n", hourly.FeelsLike, tempUnit)
-		printCommonWeatherSummary(os.Stdout, &hourly.CommonWeatherSummary, tempUnit, speedUnit)
+		printCommonWeatherSummary(os.Stdout, &hourly.CommonWeatherSummary, tempUnit, speedUnit, tz)
+		fmt.Fprintf(os.Stdout, "\n")
 	}
 	// print daily weather
 	fmt.Fprintf(os.Stdout, "Daily\n")
@@ -88,7 +94,8 @@ func main() {
 		fmt.Fprintf(os.Stdout, "  Temperature (evening)     : %.02f%s\n", daily.Temp.Eve, tempUnit)
 		fmt.Fprintf(os.Stdout, "  Temperature (night)       : %.02f%s\n", daily.Temp.Night, tempUnit)
 		fmt.Fprintf(os.Stdout, "  Feels like                : %.02f%s\n", daily.FeelsLike, tempUnit)
-		printCommonWeatherSummary(os.Stdout, &daily.CommonWeatherSummary, tempUnit, speedUnit)
+		printCommonWeatherSummary(os.Stdout, &daily.CommonWeatherSummary, tempUnit, speedUnit, tz)
+		fmt.Fprintf(os.Stdout, "\n")
 	}
 	// print alerts
 	fmt.Fprintf(os.Stdout, "Alerts\n")
@@ -98,14 +105,15 @@ func main() {
 		fmt.Fprintf(os.Stdout, "  Description               : %s\n", alert.Description)
 		fmt.Fprintf(os.Stdout, "  Start                     : %s\n", time.Unix(alert.Start, 0))
 		fmt.Fprintf(os.Stdout, "  End                       : %s\n", time.Unix(alert.End, 0))
+		fmt.Fprintf(os.Stdout, "\n")
 	}
 }
 
 // function to print the common part of weather summaries.
-func printCommonWeatherSummary(w io.Writer, s *openweathermap.CommonWeatherSummary, tempUnit, speedUnit string) {
+func printCommonWeatherSummary(w io.Writer, s *openweathermap.CommonWeatherSummary, tempUnit, speedUnit string, tz *time.Location) {
 	fmt.Fprintf(w, "  Timestamp                 : %s\n", time.Unix(s.Dt, 0))
-	fmt.Fprintf(w, "  Sunrise                   : %s\n", time.Unix(int64(s.Sunrise), 0))
-	fmt.Fprintf(w, "  Sunset                    : %s\n", time.Unix(int64(s.Sunset), 0))
+	fmt.Fprintf(w, "  Sunrise                   : %s\n", time.Unix(int64(s.Sunrise), 0).In(tz).Format("15:04:05"))
+	fmt.Fprintf(w, "  Sunset                    : %s\n", time.Unix(int64(s.Sunset), 0).In(tz).Format("15:04:05"))
 	fmt.Fprintf(w, "  Pressure                  : %d hPa\n", s.Pressure)
 	fmt.Fprintf(w, "  Humidity                  : %d%%\n", s.Humidity)
 	fmt.Fprintf(w, "  Dew point                 : %.02f%s\n", s.DewPoint, tempUnit)

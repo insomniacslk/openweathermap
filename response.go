@@ -2,18 +2,15 @@ package openweathermap
 
 // Weather maps to a JSON response from OpenWeatherMap's OneCallAPI.
 type Weather struct {
-	Lat            float64              `json:"lat"`
-	Lon            float64              `json:"lon"`
-	Timezone       string               `json:"timezone"`
-	TimezoneOffset int                  `json:"timezone_offset"`
-	Current        *PointWeatherSummary `json:"current"`
-	Minutely       []struct {
-		Dt            int64 `json:"dt"`
-		Precipitation int   `json:"precipitation"`
-	} `json:"minutely"`
-	Hourly []PointWeatherSummary `json:"hourly"`
-	Daily  []DailyWeatherSummary `json:"daily"`
-	Alerts []struct {
+	Lat            float64               `json:"lat"`
+	Lon            float64               `json:"lon"`
+	Timezone       string                `json:"timezone"`
+	TimezoneOffset int                   `json:"timezone_offset"`
+	Current        *PointWeatherSummary  `json:"current"`
+	Minutely       []PointWeatherSummary `json:"minutely"`
+	Hourly         []PointWeatherSummary `json:"hourly"`
+	Daily          []DailyWeatherSummary `json:"daily"`
+	Alerts         []struct {
 		SenderName  string `json:"sender_name"`
 		Event       string `json:"event"`
 		Start       int64  `json:"start"`
