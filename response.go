@@ -51,13 +51,9 @@ type CommonWeatherSummary struct {
 	WindDeg    int      `json:"wind_deg"`
 	WindGust   *float64 `json:"wind_gust"`
 	Pop        float64  `json:"pop"`
-	Rain       *struct {
-		OneHour int `json:"1h"`
-	} `json:"rain"`
-	Snow *struct {
-		OneHour int `json:"1h"`
-	} `json:"snow"`
-	Weather []struct {
+	Rain       *float64 `json:"rain"`
+	Snow       *float64 `json:"snow"`
+	Weather    []struct {
 		ID          int    `json:"id"`
 		Main        string `json:"main"`
 		Description string `json:"description"`

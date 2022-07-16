@@ -55,6 +55,7 @@ func Request(appID string, lat, lon float64, exclude []Exclude, units Units, lan
 	if err != nil {
 		return nil, fmt.Errorf("failed to read HTTP body: %w", err)
 	}
+	fmt.Println(string(body))
 	if resp.StatusCode != 200 {
 		var fresp OneCallAPIFailedResponse
 		if err := json.Unmarshal(body, &fresp); err != nil {

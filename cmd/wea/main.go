@@ -118,10 +118,10 @@ func printCommonWeatherSummary(w io.Writer, s *openweathermap.CommonWeatherSumma
 		fmt.Fprintf(w, "  Wind gust                 : %.02f %s\n", *s.WindGust, speedUnit)
 	}
 	if s.Rain != nil {
-		fmt.Fprintf(w, "  Rain (last hour)          : %.02f mm\n", s.Rain.OneHour)
+		fmt.Fprintf(w, "  Rain (last hour)          : %.02f mm\n", s.Rain)
 	}
 	if s.Snow != nil {
-		fmt.Fprintf(w, "  Snow (last hour)          : %.02f mm\n", s.Snow.OneHour)
+		fmt.Fprintf(w, "  Snow (last hour)          : %.02f mm\n", s.Snow)
 	}
 	fmt.Fprintf(w, "  Precipitation probability : %.02f%%\n", s.Pop)
 	for _, wea := range s.Weather {
