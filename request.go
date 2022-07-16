@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -17,7 +18,7 @@ import (
 const baseURL = "https://api.openweathermap.org/data/2.5/onecall"
 
 // Request uses OpenWeatherMap's One Call API 3.0.
-func Request(appID string, lat, lon float64, exclude []Exclude, units Units, lang Lang) (*Weather, error) {
+func Request(appID string, lat, lon float64, exclude []Exclude, units Units, lang Lang, debug bool) (*Weather, error) {
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, fmt.Errorf("invalid base URL: %w", err)
@@ -63,6 +64,9 @@ func Request(appID string, lat, lon float64, exclude []Exclude, units Units, lan
 		return nil, fmt.Errorf("Request failed with %d: %s", fresp.Cod, fresp.Message)
 	}
 
+	if debug {
+		fmt.Fprintf(os.Stderr, "%s\n", string(body))
+	}
 	var apiResp Weather
 	if err := json.Unmarshal(body, &apiResp); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON response: %w", err)

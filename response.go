@@ -2,15 +2,18 @@ package openweathermap
 
 // Weather maps to a JSON response from OpenWeatherMap's OneCallAPI.
 type Weather struct {
-	Lat            float64               `json:"lat"`
-	Lon            float64               `json:"lon"`
-	Timezone       string                `json:"timezone"`
-	TimezoneOffset int                   `json:"timezone_offset"`
-	Current        *PointWeatherSummary  `json:"current"`
-	Minutely       []PointWeatherSummary `json:"minutely"`
-	Hourly         []PointWeatherSummary `json:"hourly"`
-	Daily          []DailyWeatherSummary `json:"daily"`
-	Alerts         []struct {
+	Lat            float64              `json:"lat"`
+	Lon            float64              `json:"lon"`
+	Timezone       string               `json:"timezone"`
+	TimezoneOffset int                  `json:"timezone_offset"`
+	Current        *PointWeatherSummary `json:"current"`
+	Minutely       []struct {
+		Dt            int64 `json:"dt"`
+		Precipitation int   `json:"precipitation"`
+	} `json:"minutely"`
+	Hourly []PointWeatherSummary `json:"hourly"`
+	Daily  []DailyWeatherSummary `json:"daily"`
+	Alerts []struct {
 		SenderName  string `json:"sender_name"`
 		Event       string `json:"event"`
 		Start       int64  `json:"start"`
@@ -30,6 +33,12 @@ type PointWeatherSummary struct {
 	CommonWeatherSummary
 	Temp      float64 `json:"temp"`
 	FeelsLike float64 `json:"feels_like"`
+	Rain      struct {
+		OneHour *float64 `json:"1H"`
+	} `json:"rain"`
+	Snow struct {
+		OneHour *float64 `json:"1H"`
+	} `json:"snow"`
 }
 
 // CommonWeatherSummary is the common part between PointWeatherSummary and
@@ -48,8 +57,6 @@ type CommonWeatherSummary struct {
 	WindDeg    int      `json:"wind_deg"`
 	WindGust   *float64 `json:"wind_gust"`
 	Pop        float64  `json:"pop"`
-	Rain       *float64 `json:"rain"`
-	Snow       *float64 `json:"snow"`
 	Weather    []struct {
 		ID          int    `json:"id"`
 		Main        string `json:"main"`
@@ -75,4 +82,6 @@ type DailyWeatherSummary struct {
 		Eve   float64 `json:"eve"`
 		Morn  float64 `json:"morn"`
 	} `json:"feels_like"`
+	Rain *float64 `json:"rain"`
+	Snow *float64 `json:"snow"`
 }

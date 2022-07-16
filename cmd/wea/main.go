@@ -19,6 +19,7 @@ var (
 	flagExclude = pflag.StringP("exclude", "e", "", "Comma-separated list of fields to exclude from the response")
 	flagUnits   = pflag.StringP("units", "u", "standard", "Units to request for response")
 	flagLang    = pflag.StringP("language", "g", string(openweathermap.EN), "Language to request for response")
+	flagDebug   = pflag.BoolP("debug", "d", false, "Enable debug output")
 )
 
 func main() {
@@ -34,6 +35,7 @@ func main() {
 		excludes,
 		openweathermap.Units(*flagUnits),
 		openweathermap.Lang(*flagLang),
+		*flagDebug,
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -53,59 +55,77 @@ func main() {
 		speedUnit = "mph"
 	}
 	tz := time.FixedZone(resp.Timezone, resp.TimezoneOffset)
+	w := os.Stdout
 
 	// print location information
-	fmt.Fprintf(os.Stdout, "Latitude                    : %f\n", resp.Lat)
-	fmt.Fprintf(os.Stdout, "Longitude                   : %f\n", resp.Lon)
-	fmt.Fprintf(os.Stdout, "Time zone                   : %s\n", resp.Timezone)
-	fmt.Fprintf(os.Stdout, "Time zone offset            : %ds\n", resp.TimezoneOffset)
-	fmt.Fprintf(os.Stdout, "\n")
+	fmt.Fprintf(w, "Latitude                    : %f\n", resp.Lat)
+	fmt.Fprintf(w, "Longitude                   : %f\n", resp.Lon)
+	fmt.Fprintf(w, "Time zone                   : %s\n", resp.Timezone)
+	fmt.Fprintf(w, "Time zone offset            : %ds\n", resp.TimezoneOffset)
+	fmt.Fprintf(w, "\n")
 	// print current weather
 	if resp.Current != nil {
-		fmt.Fprintf(os.Stdout, "Current\n")
-		fmt.Fprintf(os.Stdout, "  Temperature               : %.02f%s\n", resp.Current.Temp, tempUnit)
-		fmt.Fprintf(os.Stdout, "  Feels like                : %.02f%s\n", resp.Current.FeelsLike, tempUnit)
-		printCommonWeatherSummary(os.Stdout, &resp.Current.CommonWeatherSummary, tempUnit, speedUnit, tz)
-		fmt.Fprintf(os.Stdout, "\n")
+		fmt.Fprintf(w, "Current\n")
+		fmt.Fprintf(w, "  Temperature               : %.02f%s\n", resp.Current.Temp, tempUnit)
+		fmt.Fprintf(w, "  Feels like                : %.02f%s\n", resp.Current.FeelsLike, tempUnit)
+		printCommonWeatherSummary(w, &resp.Current.CommonWeatherSummary, tempUnit, speedUnit, tz)
+		if resp.Current.Rain.OneHour != nil {
+			fmt.Fprintf(w, "  Rain (last hour)          : %.02f mm\n", *resp.Current.Rain.OneHour)
+		}
+		if resp.Current.Snow.OneHour != nil {
+			fmt.Fprintf(w, "  Snow (last hour)          : %.02f mm\n", *resp.Current.Snow.OneHour)
+		}
+		fmt.Fprintf(w, "\n")
 	}
 	// print minutely weather
-	fmt.Fprintf(os.Stdout, "Minutely\n")
+	fmt.Fprintf(w, "Minutely\n")
 	for _, minutely := range resp.Minutely {
-		fmt.Fprintf(os.Stdout, "  Temperature               : %.02f%s\n", minutely.Temp, tempUnit)
-		fmt.Fprintf(os.Stdout, "  Feels like                : %.02f%s\n", minutely.FeelsLike, tempUnit)
-		printCommonWeatherSummary(os.Stdout, &minutely.CommonWeatherSummary, tempUnit, speedUnit, tz)
-		fmt.Fprintf(os.Stdout, "\n")
+		fmt.Fprintf(w, "  Timestamp                 : %s\n", time.Unix(minutely.Dt, 0))
+		fmt.Fprintf(w, "  Precipitation             : %d mm\n", minutely.Precipitation)
+		fmt.Fprintf(w, "\n")
 	}
 	// print hourly weather
-	fmt.Fprintf(os.Stdout, "Hourly\n")
+	fmt.Fprintf(w, "Hourly\n")
 	for _, hourly := range resp.Hourly {
-		fmt.Fprintf(os.Stdout, "  Temperature               : %.02f%s\n", hourly.Temp, tempUnit)
-		fmt.Fprintf(os.Stdout, "  Feels like                : %.02f%s\n", hourly.FeelsLike, tempUnit)
-		printCommonWeatherSummary(os.Stdout, &hourly.CommonWeatherSummary, tempUnit, speedUnit, tz)
-		fmt.Fprintf(os.Stdout, "\n")
+		fmt.Fprintf(w, "  Temperature               : %.02f%s\n", hourly.Temp, tempUnit)
+		fmt.Fprintf(w, "  Feels like                : %.02f%s\n", hourly.FeelsLike, tempUnit)
+		printCommonWeatherSummary(w, &hourly.CommonWeatherSummary, tempUnit, speedUnit, tz)
+		if hourly.Rain.OneHour != nil {
+			fmt.Fprintf(w, "  Rain (last hour)          : %.02f mm\n", *hourly.Rain.OneHour)
+		}
+		if hourly.Snow.OneHour != nil {
+			fmt.Fprintf(w, "  Snow (last hour)          : %.02f mm\n", *hourly.Snow.OneHour)
+		}
+		fmt.Fprintf(w, "\n")
 	}
 	// print daily weather
-	fmt.Fprintf(os.Stdout, "Daily\n")
+	fmt.Fprintf(w, "Daily\n")
 	for _, daily := range resp.Daily {
-		fmt.Fprintf(os.Stdout, "  Temperature (day)         : %.02f%s\n", daily.Temp.Day, tempUnit)
-		fmt.Fprintf(os.Stdout, "  Temperature (min)         : %.02f%s\n", daily.Temp.Min, tempUnit)
-		fmt.Fprintf(os.Stdout, "  Temperature (max)         : %.02f%s\n", daily.Temp.Max, tempUnit)
-		fmt.Fprintf(os.Stdout, "  Temperature (morning)     : %.02f%s\n", daily.Temp.Morn, tempUnit)
-		fmt.Fprintf(os.Stdout, "  Temperature (evening)     : %.02f%s\n", daily.Temp.Eve, tempUnit)
-		fmt.Fprintf(os.Stdout, "  Temperature (night)       : %.02f%s\n", daily.Temp.Night, tempUnit)
-		fmt.Fprintf(os.Stdout, "  Feels like                : %.02f%s\n", daily.FeelsLike, tempUnit)
-		printCommonWeatherSummary(os.Stdout, &daily.CommonWeatherSummary, tempUnit, speedUnit, tz)
-		fmt.Fprintf(os.Stdout, "\n")
+		fmt.Fprintf(w, "  Temperature (day)         : %.02f%s\n", daily.Temp.Day, tempUnit)
+		fmt.Fprintf(w, "  Temperature (min)         : %.02f%s\n", daily.Temp.Min, tempUnit)
+		fmt.Fprintf(w, "  Temperature (max)         : %.02f%s\n", daily.Temp.Max, tempUnit)
+		fmt.Fprintf(w, "  Temperature (morning)     : %.02f%s\n", daily.Temp.Morn, tempUnit)
+		fmt.Fprintf(w, "  Temperature (evening)     : %.02f%s\n", daily.Temp.Eve, tempUnit)
+		fmt.Fprintf(w, "  Temperature (night)       : %.02f%s\n", daily.Temp.Night, tempUnit)
+		fmt.Fprintf(w, "  Feels like                : %.02f%s\n", daily.FeelsLike, tempUnit)
+		printCommonWeatherSummary(w, &daily.CommonWeatherSummary, tempUnit, speedUnit, tz)
+		if daily.Rain != nil {
+			fmt.Fprintf(w, "  Rain (last hour)          : %.02f mm\n", *daily.Rain)
+		}
+		if daily.Snow != nil {
+			fmt.Fprintf(w, "  Snow (last hour)          : %.02f mm\n", *daily.Snow)
+		}
+		fmt.Fprintf(w, "\n")
 	}
 	// print alerts
-	fmt.Fprintf(os.Stdout, "Alerts\n")
+	fmt.Fprintf(w, "Alerts\n")
 	for _, alert := range resp.Alerts {
-		fmt.Fprintf(os.Stdout, "  Sender name               : %s\n", alert.SenderName)
-		fmt.Fprintf(os.Stdout, "  Event                     : %s\n", alert.Event)
-		fmt.Fprintf(os.Stdout, "  Description               : %s\n", alert.Description)
-		fmt.Fprintf(os.Stdout, "  Start                     : %s\n", time.Unix(alert.Start, 0))
-		fmt.Fprintf(os.Stdout, "  End                       : %s\n", time.Unix(alert.End, 0))
-		fmt.Fprintf(os.Stdout, "\n")
+		fmt.Fprintf(w, "  Sender name               : %s\n", alert.SenderName)
+		fmt.Fprintf(w, "  Event                     : %s\n", alert.Event)
+		fmt.Fprintf(w, "  Description               : %s\n", alert.Description)
+		fmt.Fprintf(w, "  Start                     : %s\n", time.Unix(alert.Start, 0))
+		fmt.Fprintf(w, "  End                       : %s\n", time.Unix(alert.End, 0))
+		fmt.Fprintf(w, "\n")
 	}
 }
 
@@ -124,12 +144,6 @@ func printCommonWeatherSummary(w io.Writer, s *openweathermap.CommonWeatherSumma
 	fmt.Fprintf(w, "  Wind direction            : %.02f degrees\n", s.WindSpeed)
 	if s.WindGust != nil {
 		fmt.Fprintf(w, "  Wind gust                 : %.02f %s\n", *s.WindGust, speedUnit)
-	}
-	if s.Rain != nil {
-		fmt.Fprintf(w, "  Rain (last hour)          : %.02f mm\n", s.Rain)
-	}
-	if s.Snow != nil {
-		fmt.Fprintf(w, "  Snow (last hour)          : %.02f mm\n", s.Snow)
 	}
 	fmt.Fprintf(w, "  Precipitation probability : %.02f%%\n", s.Pop)
 	for _, wea := range s.Weather {
