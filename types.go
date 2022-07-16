@@ -76,5 +76,4 @@ const (
 	ZH_CN Lang = "zh_cn" // Chinese Simplified
 	ZH_TW Lang = "zh_tw" // Chinese Traditional
 	ZU    Lang = "zu"    // Zulu
-
 )

@@ -2,16 +2,17 @@ package openweathermap
 
 // Weather maps to a JSON response from OpenWeatherMap's OneCallAPI.
 type Weather struct {
-	Lat            float64             `json:"lat"`
-	Lon            float64             `json:"lon"`
-	Timezone       string              `json:"timezone"`
-	TimezoneOffset int                 `json:"timezone_offset"`
-	Current        PointWeatherSummary `json:"current"`
+	Lat            float64              `json:"lat"`
+	Lon            float64              `json:"lon"`
+	Timezone       string               `json:"timezone"`
+	TimezoneOffset int                  `json:"timezone_offset"`
+	Current        *PointWeatherSummary `json:"current"`
 	Minutely       []struct {
 		Dt            int64 `json:"dt"`
 		Precipitation int   `json:"precipitation"`
 	} `json:"minutely"`
 	Hourly []PointWeatherSummary `json:"hourly"`
+	Daily  []DailyWeatherSummary `json:"daily"`
 	Alerts []struct {
 		SenderName  string `json:"sender_name"`
 		Event       string `json:"event"`
@@ -37,23 +38,23 @@ type PointWeatherSummary struct {
 // CommonWeatherSummary is the common part between PointWeatherSummary and
 // DailyWeatherSummary.
 type CommonWeatherSummary struct {
-	Dt         int64   `json:"dt"`
-	Sunrise    int     `json:"sunrise"`
-	Sunset     int     `json:"sunset"`
-	Pressure   int     `json:"pressure"`
-	Humidity   int     `json:"humidity"`
-	DewPoint   float64 `json:"dew_point"`
-	UVI        float64 `json:"uvi"`
-	Clouds     int     `json:"clouds"`
-	Visibility int     `json:"visibility"`
-	WindSpeed  float64 `json:"wind_speed"`
-	WindDeg    int     `json:"wind_deg"`
-	WindGust   float64 `json:"wind_gust"`
-	Pop        float64 `json:"pop"`
-	Rain       struct {
+	Dt         int64    `json:"dt"`
+	Sunrise    int      `json:"sunrise"`
+	Sunset     int      `json:"sunset"`
+	Pressure   int      `json:"pressure"`
+	Humidity   int      `json:"humidity"`
+	DewPoint   float64  `json:"dew_point"`
+	UVI        float64  `json:"uvi"`
+	Clouds     int      `json:"clouds"`
+	Visibility int      `json:"visibility"`
+	WindSpeed  float64  `json:"wind_speed"`
+	WindDeg    int      `json:"wind_deg"`
+	WindGust   *float64 `json:"wind_gust"`
+	Pop        float64  `json:"pop"`
+	Rain       *struct {
 		OneHour int `json:"1h"`
 	} `json:"rain"`
-	Snow struct {
+	Snow *struct {
 		OneHour int `json:"1h"`
 	} `json:"snow"`
 	Weather []struct {
