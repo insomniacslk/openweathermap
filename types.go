@@ -24,9 +24,9 @@ const (
 
 // TempUnits maps unit system to temperature unit.
 var TempUnits = map[Units]string{
-	Standard: "K",
-	Metric:   "C",
-	Imperial: "F",
+	Standard: "\u00B0K",
+	Metric:   "\u00B0C",
+	Imperial: "\u00B0F",
 }
 
 // SpeedUnits maps unit system to speed unit.
