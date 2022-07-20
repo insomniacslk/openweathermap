@@ -42,18 +42,8 @@ func main() {
 	}
 
 	// prepare units
-	var tempUnit, speedUnit string
-	switch openweathermap.Units(*flagUnits) {
-	case openweathermap.Standard:
-		tempUnit = "K"
-		speedUnit = "m/s"
-	case openweathermap.Metric:
-		tempUnit = "C"
-		speedUnit = "m/s"
-	case openweathermap.Imperial:
-		tempUnit = "F"
-		speedUnit = "mph"
-	}
+	tempUnit := openweathermap.TempUnits[openweathermap.Units(*flagUnits)]
+	speedUnit := openweathermap.SpeedUnits[openweathermap.Units(*flagUnits)]
 	tz := time.FixedZone(resp.Timezone, resp.TimezoneOffset)
 	w := os.Stdout
 

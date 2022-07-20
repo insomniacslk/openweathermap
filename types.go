@@ -22,6 +22,20 @@ const (
 	Imperial       = "imperial"
 )
 
+// TempUnits maps unit system to temperature unit.
+var TempUnits = map[Units]string{
+	Standard: "K",
+	Metric:   "C",
+	Imperial: "F",
+}
+
+// SpeedUnits maps unit system to speed unit.
+var SpeedUnits = map[Units]string{
+	Standard: "m/s",
+	Metric:   "m/s",
+	Imperial: "mph",
+}
+
 // Lang defines the language used in the API response.
 type Lang string
 
