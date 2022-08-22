@@ -1,0 +1,44 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/insomniacslk/openweathermap/geocoding"
+	"github.com/spf13/pflag"
+)
+
+var (
+	flagAppID   = pflag.StringP("app-id", "a", "", "App ID (a.k.a API key)")
+	flagCity    = pflag.StringP("city", "c", "", "City name")
+	flagState   = pflag.StringP("state", "s", "", "State name")
+	flagCountry = pflag.StringP("country", "C", "", "Country name")
+	flagLimit   = pflag.IntP("limit", "l", geocoding.DefaultLimit, "Maximum number of results (between 0 and 5, 0 means default)")
+	flagDebug   = pflag.BoolP("debug", "d", false, "Enable debug output")
+)
+
+func main() {
+	pflag.Parse()
+	resp, err := geocoding.DirectGeocoding(
+		*flagAppID,
+		&geocoding.DirectGeocodingRequest{
+			City:        *flagCity,
+			State:       *flagState,
+			CountryCode: *flagCountry,
+			Limit:       *flagLimit,
+		},
+		*flagDebug,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	w := os.Stdout
+	for _, item := range *resp {
+		fmt.Fprintf(w, "Name:      %s\n", item.Name)
+		fmt.Fprintf(w, "Country:   %s\n", item.Country)
+		fmt.Fprintf(w, "Latitude:  %f\n", item.Lat)
+		fmt.Fprintf(w, "Longitude: %f\n", item.Lon)
+		fmt.Fprintf(w, "Got %d localized names\n", len(item.LocalNames))
+	}
+}

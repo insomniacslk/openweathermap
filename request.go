@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -43,8 +42,6 @@ func Request(appID string, lat, lon float64, exclude []Exclude, units Units, lan
 		q.Set("lang", string(lang))
 	}
 	u.RawQuery = q.Encode()
-
-	log.Printf("%s", u.String())
 
 	resp, err := http.Get(u.String())
 	if err != nil {
