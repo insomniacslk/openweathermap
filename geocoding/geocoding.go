@@ -2,6 +2,8 @@
 // described at https://openweathermap.org/api/geocoding-api .
 package geocoding
 
+// TODO add search by zip code
+
 import (
 	"encoding/json"
 	"fmt"
@@ -43,6 +45,7 @@ type Response []struct {
 	Lat        float64           `json:"lat"`
 	Lon        float64           `json:"lon"`
 	Country    string            `json:"country"`
+	State      string            `json:"state"`
 }
 
 // ReverseGeocodingRequest represents a reverse geocoding request.
