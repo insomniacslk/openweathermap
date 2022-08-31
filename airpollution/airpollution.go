@@ -28,11 +28,34 @@ type FailureResponse struct {
 	Message string `json:"message"`
 }
 
+// AirPollutionRequest contains the fields that can be requested to the air
+// pollution API.
 type AirPollutionRequest struct {
 	Lat   float64
 	Lon   float64
 	Start int64
 	End   int64
+}
+
+// Quality is a wrapper around the air quality integer that can be used as a
+// stringer.
+type Quality int
+
+func (q Quality) String() string {
+	switch int(q) {
+	case 1:
+		return "good"
+	case 2:
+		return "fair"
+	case 3:
+		return "moderate"
+	case 4:
+		return "poor"
+	case 5:
+		return "very poor"
+	default:
+		return fmt.Sprintf("unknown(%d)", q)
+	}
 }
 
 // Response represents an air pollution response.
