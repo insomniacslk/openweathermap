@@ -11,9 +11,10 @@ type Weather struct {
 		Dt            int64 `json:"dt"`
 		Precipitation int   `json:"precipitation"`
 	} `json:"minutely"`
-	Hourly []PointWeatherSummary `json:"hourly"`
-	Daily  []DailyWeatherSummary `json:"daily"`
-	Alerts []struct {
+	Hourly  []PointWeatherSummary `json:"hourly"`
+	Daily   []DailyWeatherSummary `json:"daily"`
+	Summary string                `json:"summary"`
+	Alerts  []struct {
 		SenderName  string `json:"sender_name"`
 		Event       string `json:"event"`
 		Start       int64  `json:"start"`

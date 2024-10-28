@@ -12,9 +12,7 @@ import (
 )
 
 // base URL for the One Call API 3.0, see https://openweathermap.org/api/one-call-3
-// FIXME check that 3.0 works
-// const baseURL = "https://api.openweathermap.org/data/3.0/onecall"
-const baseURL = "https://api.openweathermap.org/data/2.5/onecall"
+const baseURL = "https://api.openweathermap.org/data/3.0/onecall"
 
 // Request uses OpenWeatherMap's One Call API 3.0.
 func Request(appID string, lat, lon float64, exclude []Exclude, units Units, lang Lang, debug bool) (*Weather, error) {
